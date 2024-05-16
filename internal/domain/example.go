@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"context"
 	"github.com/google/uuid"
 )
 
@@ -11,7 +10,18 @@ type Example struct {
 	Field2 int
 }
 
-type ExampleRepository interface {
-	CreateExample(ctx context.Context, example *Example) error
-	GetExampleById(ctx context.Context, id uuid.UUID) (*Example, error)
+func NewExample(field1 string, field2 int) *Example {
+	return &Example{
+		Id:     uuid.New(),
+		Field1: field1,
+		Field2: field2,
+	}
+}
+
+func (domain Example) Rename(field1 string) {
+	domain.Field1 = field1
+}
+
+func (domain Example) Birthday() {
+	domain.Field2 = domain.Field2 + 1
 }
