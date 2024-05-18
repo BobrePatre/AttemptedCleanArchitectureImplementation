@@ -1,5 +1,11 @@
 ### Not Found Err
-GET http://localhost:8080
+GET http://localhost:8080/users
 
 ### Incr Counter
 POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "name": "Penis",
+  "age": 19
+}

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cleanArchitecture/internal/adapters/primary/rest"
+	"cleanArchitecture/internal/adapters/primary/rest/user"
 	"cleanArchitecture/internal/adapters/secondary/in_memory"
 	"cleanArchitecture/internal/application/interactors"
 	"cleanArchitecture/internal/infrastructure/http"
@@ -34,15 +34,15 @@ func main() {
 		// User
 		fx.Provide(
 			fx.Annotate(
-				in_memory.NewUserCounterRepository,
-				fx.As(new(interactors.UserCounterRepository)),
+				in_memory.NewUserRepository,
+				fx.As(new(interactors.UserRepository)),
 			),
 			interactors.NewUserInteractor,
 		),
 
 		// EntryPoint
 		fx.Invoke(
-			rest.RegisterUserHandlers,
+			user.RegisterUserHandlers,
 			http.RunHttpServer,
 		),
 	)
