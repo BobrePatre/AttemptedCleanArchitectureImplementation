@@ -1,7 +1,7 @@
-### Not Found Err
+### Get All users черт возьми
 GET http://localhost:8080/users
 
-### Incr Counter
+### Создать новго Свофорда
 POST http://localhost:8080/users
 Content-Type: application/json
 
