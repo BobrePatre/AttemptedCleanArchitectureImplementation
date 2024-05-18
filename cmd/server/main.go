@@ -2,6 +2,7 @@ package main
 
 import (
 	"cleanArchitecture/internal/adapters/primary/rest"
+	"cleanArchitecture/internal/adapters/secondary/in_memory"
 	"cleanArchitecture/internal/application/interactors"
 	"cleanArchitecture/internal/infrastructure/http"
 	"cleanArchitecture/internal/infrastructure/logging"
@@ -31,7 +32,13 @@ func main() {
 		),
 
 		// User
-		fx.Provide(interactors.NewUserInteractor),
+		fx.Provide(
+			fx.Annotate(
+				in_memory.NewUserCounterRepository,
+				fx.As(new(interactors.UserCounterRepository)),
+			),
+			interactors.NewUserInteractor,
+		),
 
 		// EntryPoint
 		fx.Invoke(
