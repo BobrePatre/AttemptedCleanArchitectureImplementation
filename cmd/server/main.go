@@ -17,18 +17,22 @@ func main() {
 			logging.LoggerConfig,
 			logging.Logger,
 		),
+
 		// Configure logger for uber fx
 		fx.WithLogger(func(logger *slog.Logger) fxevent.Logger {
 			return &fxevent.SlogLogger{
 				Logger: logger,
 			}
 		}),
+
 		// Primary Adapters
 		fx.Provide(
 			http.NewHttpServer,
 		),
+
 		// User Domain
 		fx.Provide(interactors.NewUserInteractor),
+
 		// EntryPoint
 		fx.Invoke(
 			rest.RegisterUserHandlers,
