@@ -30,7 +30,7 @@ func main() {
 			http.NewHttpServer,
 		),
 
-		// User Domain
+		// User
 		fx.Provide(interactors.NewUserInteractor),
 
 		// EntryPoint
