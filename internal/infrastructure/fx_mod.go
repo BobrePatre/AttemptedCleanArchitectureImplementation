@@ -15,9 +15,9 @@ var Module = fx.Module(
 		http.NewHttpServer,
 	),
 	fx.Invoke(
+		http.RunHttpServer,
 		func(logger *slog.Logger) {
 			logger.Info("Infrastructure Initialized")
 		},
-		http.RunHttpServer,
 	),
 )
