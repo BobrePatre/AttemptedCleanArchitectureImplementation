@@ -1,11 +1,9 @@
 package main
 
 import (
-	"cleanArchitecture/internal/adapters/primary/rest/user"
-	"cleanArchitecture/internal/adapters/secondary/in_memory"
-	"cleanArchitecture/internal/application/interactors"
 	"cleanArchitecture/internal/infrastructure/http"
 	"cleanArchitecture/internal/infrastructure/logging"
+	"cleanArchitecture/internal/user"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"log/slog"
@@ -13,10 +11,15 @@ import (
 
 func main() {
 	app := fx.New(
-		// Logger Deps
+
+		// Modules
+		user.Module,
+
+		// Infrastructure
 		fx.Provide(
 			logging.LoggerConfig,
 			logging.Logger,
+			http.NewHttpServer,
 		),
 
 		// Configure logger for uber fx
@@ -26,23 +29,8 @@ func main() {
 			}
 		}),
 
-		// Primary Adapters
-		fx.Provide(
-			http.NewHttpServer,
-		),
-
-		// User
-		fx.Provide(
-			fx.Annotate(
-				in_memory.NewUserRepository,
-				fx.As(new(interactors.UserRepository)),
-			),
-			interactors.NewUserInteractor,
-		),
-
 		// EntryPoint
 		fx.Invoke(
-			user.RegisterUserHandlers,
 			http.RunHttpServer,
 		),
 	)

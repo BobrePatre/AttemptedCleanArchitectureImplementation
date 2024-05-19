@@ -1,8 +1,8 @@
-package user
+package delivery
 
 import (
-	"cleanArchitecture/internal/application/dto"
-	"cleanArchitecture/internal/application/interactors"
+	"cleanArchitecture/internal/user/service/dto"
+	"cleanArchitecture/internal/user/service/interactors"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
