@@ -3,23 +3,44 @@ package http
 import (
 	"context"
 	"errors"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/fx"
 	"log/slog"
 	"net"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 var httpServerTag = slog.String("server", "http_server")
 
-const (
-	serverPort = "8080"
-	serverHost = "0.0.0.0"
-)
+type Config struct {
+	Host string `json:"host" env-default:"0.0.0.0" env:"HOST"`
+	Port int    `json:"port" env-default:"8080" env:"PORT"`
+}
 
-func NewHttpServer(logger *slog.Logger) *echo.Echo {
+func (cfg *Config) Address() string {
+	return net.JoinHostPort(cfg.Host, strconv.Itoa(cfg.Port))
+}
+
+func LoadConfig() (*Config, error) {
+	var cfg struct {
+		Config Config `json:"http" env-prefix:"HTTP_"`
+	}
+	err := cleanenv.ReadConfig("config.json", &cfg)
+	if err != nil {
+		err := cleanenv.ReadEnv(&cfg)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &cfg.Config, nil
+}
+
+func NewHttpServer(logger *slog.Logger, gateway *runtime.ServeMux) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
@@ -56,16 +77,25 @@ func NewHttpServer(logger *slog.Logger) *echo.Echo {
 			return nil
 		},
 	}))
+	e.Any("/*", echo.WrapHandler(gateway))
 	return e
 }
 
-func RunHttpServer(lc fx.Lifecycle, e *echo.Echo, logger *slog.Logger) {
+func RunHttpServer(lc fx.Lifecycle, e *echo.Echo, logger *slog.Logger, cfg *Config) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
+			listener, err := net.Listen("tcp", cfg.Address())
+			if err != nil {
+				logger.Error("cannot start server", "error", err.Error(), httpServerTag)
+				return err
+			}
+			e.Listener = listener
+			logger.Info("starting server", httpServerTag, "address", cfg.Address())
 			go func() {
-				logger.Info("starting on port", httpServerTag)
-				if err := e.Start(net.JoinHostPort(serverHost, serverPort)); err != nil && !errors.Is(err, http.ErrServerClosed) {
-					logger.Error("shutting down", httpServerTag)
+				err := e.Start("")
+				if err != nil && !errors.Is(err, http.ErrServerClosed) {
+					logger.Error("cannot start server, force exit", "error", err.Error(), httpServerTag)
+					panic(err)
 				}
 			}()
 			return nil
