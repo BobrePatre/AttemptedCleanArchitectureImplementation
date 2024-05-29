@@ -1,4 +1,4 @@
-package user
+package delivery
 
 type CreateUserRq struct {
 	Name string `json:"name"`

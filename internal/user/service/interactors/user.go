@@ -1,14 +1,14 @@
 package interactors
 
 import (
-	"cleanArchitecture/internal/application/dto"
-	"cleanArchitecture/internal/domain"
+	"cleanArchitecture/internal/user/entity"
+	"cleanArchitecture/internal/user/service/dto"
 	"log/slog"
 )
 
 type UserRepository interface {
-	Create(example *domain.User) error
-	GetAll() ([]*domain.User, error)
+	Create(example *entity.User) error
+	GetAll() ([]*entity.User, error)
 }
 
 type UserInteractor struct {
@@ -24,7 +24,7 @@ func NewUserInteractor(logger *slog.Logger, counterRepo UserRepository) *UserInt
 }
 
 func (interactor *UserInteractor) CreateUser(dto dto.CreateUserRq) error {
-	example := domain.NewExample(dto.Name, dto.Age)
+	example := entity.NewExample(dto.Name, dto.Age)
 	err := interactor.repo.Create(example)
 	if err != nil {
 		return err
@@ -33,6 +33,6 @@ func (interactor *UserInteractor) CreateUser(dto dto.CreateUserRq) error {
 	return nil
 }
 
-func (interactor *UserInteractor) GetAll() ([]*domain.User, error) {
+func (interactor *UserInteractor) GetAll() ([]*entity.User, error) {
 	return interactor.repo.GetAll()
 }
